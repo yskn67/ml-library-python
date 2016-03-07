@@ -43,13 +43,18 @@ class LogisticRegression():
         for i, w in enumerate(self.w):
             print("w[{}]: {}".format(i, w))
 
-    def predict(self, data):
+    def predict_prob(self, data):
         pred = []
         for d in data:
             x = [1]
-            x.extend(d)
+            x.extend(d[1:])
             pred.append(1 / (1 + self.__exp_wx(x)))
         return np.array(pred)
+
+    def predict(self, data, threshold=0.5):
+        pred_prob = self.predict_prob(data)
+        pred = np.array([1 if p >= threshold else 0 for p in pred_prob])
+        return pred
 
 
 def sampling(num=50, min=0, range=5):
@@ -64,6 +69,5 @@ if __name__ == '__main__':
     lr.train(sample)
     lr.show_params()
     pred = lr.predict(sample)
-    label = [int(d[0]) for d in sample]
-    pred_label = [1 if p >= 0.5 else 0 for p in pred]
-    print(confusion_matrix(label, pred_label))
+    label = np.array([int(d[0]) for d in sample])
+    print(confusion_matrix(label, pred))
